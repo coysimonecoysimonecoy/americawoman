@@ -1,0 +1,16 @@
+{
+  "name": "americawoman",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler pages dev public --compatibility-date=2026-06-28",
+    "deploy": "wrangler pages deploy public --project-name americawoman",
+    "db:schema:local": "wrangler d1 execute DB --local --file=schema.sql",
+    "db:schema:remote": "wrangler d1 execute iyas_return --remote --file=schema.sql",
+    "migrate:memories": "node scripts/run-migration.mjs"
+  },
+  "devDependencies": {
+    "wrangler": "^4.23.0"
+  }
+}

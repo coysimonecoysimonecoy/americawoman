@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AMERICANWOMAN</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="styles.css?v=20260628-layout" />
+  </head>
+  <body>
+    <video class="background-video" autoplay muted loop playsinline poster="assets/giphy.gif" aria-hidden="true">
+      <source src="assets/background-slow.mp4" type="video/mp4" />
+    </video>
+
+    <div class="background-tint" aria-hidden="true"></div>
+
+    <main class="page">
+      <section class="countdown-panel" aria-labelledby="site-title">
+        <h1 id="site-title">Iya's Return</h1>
+
+        <div class="timer" role="timer" aria-live="polite" aria-atomic="true">
+          <div class="time-unit">
+            <div class="digits days" id="days" aria-hidden="true"></div>
+            <span class="unit-label">Days</span>
+          </div>
+
+          <span class="separator" aria-hidden="true"></span>
+
+          <div class="time-unit">
+            <div class="digits" id="hours" aria-hidden="true"></div>
+            <span class="unit-label">Hours</span>
+          </div>
+
+          <span class="separator" aria-hidden="true"></span>
+
+          <div class="time-unit">
+            <div class="digits" id="minutes" aria-hidden="true"></div>
+            <span class="unit-label">Minutes</span>
+          </div>
+
+          <span class="separator" aria-hidden="true"></span>
+
+          <div class="time-unit">
+            <div class="digits" id="seconds" aria-hidden="true"></div>
+            <span class="unit-label">Seconds</span>
+          </div>
+
+          <span class="sr-only" id="spoken-countdown"></span>
+        </div>
+
+        <p class="milestone-message" id="milestone-message" hidden></p>
+
+        <section class="daily-reading" aria-live="polite" aria-labelledby="daily-reading-reference">
+          <div class="daily-reading-topline">
+            <p class="daily-reading-kicker">Daily Bible reading</p>
+          </div>
+          <h2 class="daily-reading-reference" id="daily-reading-reference">Matthew 5-7</h2>
+          <p class="daily-reading-theme" id="daily-reading-theme">Sermon on the Mount</p>
+          <p class="daily-reading-note" id="daily-reading-note">Start with the words of Jesus: humility, mercy, courage, forgiveness, and steady love.</p>
+          <a class="daily-reading-link" id="daily-reading-link" href="https://www.biblegateway.com/passage/?search=Matthew%205-7&version=KJV" target="_blank" rel="noopener">Read exact passage</a>
+        </section>
+
+        <section class="proud-message" aria-live="polite" aria-labelledby="proud-message-title">
+          <p class="proud-message-kicker">From coy to you</p>
+          <h2 id="proud-message-title">I'm proud of you today.</h2>
+          <p id="proud-message-text">You are showing up, and that matters more than you know.</p>
+        </section>
+
+        <section class="distance-hug" aria-labelledby="hug-title">
+          <div class="hug-copy">
+            <p>Distance hug</p>
+            <h2 id="hug-title">Send a hug from here.</h2>
+          </div>
+
+          <button class="hug-button" id="send-hug" type="button">
+            <span class="hug-button-icon" aria-hidden="true">&hearts;</span>
+            <span>Send distance hug</span>
+            <span class="hug-burst" id="hug-burst" aria-hidden="true"></span>
+          </button>
+
+          <p class="hug-status" id="hug-status" role="status" aria-live="polite" hidden></p>
+        </section>
+
+        <section class="feeling-checkin" aria-labelledby="feeling-title">
+          <div class="feeling-copy">
+            <p>Daily check-in</p>
+            <h2 id="feeling-title">How are you feeling today?</h2>
+          </div>
+
+          <div class="feeling-meter" id="feeling-meter" role="radiogroup" aria-label="Today's feeling"></div>
+
+          <label class="feeling-note-wrap" for="feeling-note">
+            <span>Optional note</span>
+            <textarea id="feeling-note" maxlength="240" placeholder="A short thought for today..."></textarea>
+          </label>
+
+          <label class="feeling-passcode-wrap" for="feeling-passcode">
+            <span>Passcode</span>
+            <input id="feeling-passcode" type="password" autocomplete="current-password" placeholder="Enter passcode" />
+          </label>
+
+          <p class="feeling-status" id="feeling-status" role="status" aria-live="polite"></p>
+
+          <button class="feeling-save-button" id="save-feeling" type="button">Save feeling</button>
+        </section>
+
+        <div class="drive-actions" aria-label="Memory drive">
+          <a class="drive-button primary memory-button" id="memory-drive" href="#" target="_blank" rel="noopener">Send a memory</a>
+        </div>
+
+        <section class="map-shell" aria-labelledby="map-title">
+          <h2 class="sr-only" id="map-title">Iya's return map</h2>
+
+          <div class="map-toolbar" aria-label="Itinerary map controls">
+            <button class="city-control coast" type="button" data-city="myrtle">Myrtle Beach</button>
+            <button class="city-control city" type="button" data-city="nyc">New York City</button>
+            <button class="map-collage" id="open-collage" type="button">Memories</button>
+            <button class="map-reset" id="reset-map" type="button">Reset</button>
+          </div>
+
+          <div class="itinerary-map" id="itinerary-map" aria-label="Map of memory stops"></div>
+
+          <section class="location-panel" id="location-panel" aria-live="polite" hidden>
+            <div class="location-panel-header">
+              <p id="selected-city-kicker"></p>
+              <h3 id="selected-city-title"></h3>
+            </div>
+            <div class="location-grid" id="location-grid"></div>
+          </section>
+        </section>
+      </section>
+    </main>
+
+    <button class="feeling-side-button" id="feeling-history-button" type="button" aria-label="Open feeling history">&#128528;</button>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="script.js?v=20260613-main"></script>
+  </body>
+</html>

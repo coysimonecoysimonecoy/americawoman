@@ -1,0 +1,12 @@
+name = "americawoman"
+compatibility_date = "2026-06-28"
+pages_build_output_dir = "public"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "iyas_return"
+database_id = "80ca1929-7485-4d14-8821-4504cfb1f317"
+
+[[kv_namespaces]]
+binding = "MEMORY_MEDIA"
+id = "7416da0e31f24fb59d00c5d7ea2ebf9c"
