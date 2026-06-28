@@ -36,3 +36,28 @@ CREATE TABLE IF NOT EXISTS hugs (
   count INTEGER NOT NULL DEFAULT 0,
   updated_at TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS collage_projects (
+  project_id TEXT PRIMARY KEY,
+  title TEXT NOT NULL DEFAULT '',
+  subtitle TEXT NOT NULL DEFAULT '',
+  layout TEXT NOT NULL DEFAULT 'grid',
+  canvas_json TEXT NOT NULL DEFAULT '{}',
+  boxes_json TEXT NOT NULL DEFAULT '[]',
+  style_json TEXT NOT NULL DEFAULT '{}',
+  updated_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS collage_assets (
+  asset_id TEXT PRIMARY KEY,
+  project_id TEXT NOT NULL DEFAULT 'default',
+  r2_key TEXT NOT NULL,
+  pathname TEXT NOT NULL UNIQUE,
+  filename TEXT NOT NULL DEFAULT '',
+  content_type TEXT NOT NULL DEFAULT '',
+  size INTEGER NOT NULL DEFAULT 0,
+  uploaded_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_collage_assets_project
+ON collage_assets (project_id, uploaded_at);
