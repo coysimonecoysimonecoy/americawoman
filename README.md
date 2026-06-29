@@ -2,8 +2,6 @@
 
 Static Cloudflare Pages app recovered from the live Vercel deployment, with the map/memories UI restored and storage moved to Cloudflare D1 + KV media storage.
 
-The Memories button opens a full-screen collage editor. The editor saves project JSON to D1 and uploaded collage assets to the existing Cloudflare media binding.
-
 ## Local Setup
 
 1. Install dependencies:
@@ -50,13 +48,6 @@ npm run db:schema:remote
 Set the `MEMORY_PASSCODE` secret in the Cloudflare Pages project before deploying.
 
 R2 is still supported by the media helper, but this account has to enable R2 in the Cloudflare dashboard before a bucket can be created. KV is the active Cloudflare storage binding so the app can deploy without waiting on R2 setup.
-
-## Collage Editor API
-
-- `GET /api/collage/project?id=default` returns the public saved project, seeded from legacy collage photos if no project exists yet.
-- `PUT /api/collage/project` saves the project and requires `MEMORY_PASSCODE`.
-- `POST /api/collage/assets` uploads one or more images and requires `MEMORY_PASSCODE`.
-- `DELETE /api/collage/assets` removes an uploaded media object and requires `MEMORY_PASSCODE`.
 
 ## Migration
 
