@@ -2483,6 +2483,7 @@ function renderCollagePanel(tab = "random") {
   const tabs = buildCollagePanelTabs();
 
   collagePanelOpen = true;
+  setCollageLayoutMode(true);
   activeCityKey = "";
   clearActiveLocation();
   cityMarkerLayer.clearLayers();
@@ -2894,6 +2895,7 @@ function setSelectedCity(cityKey) {
 
   activeCityKey = cityKey;
   collagePanelOpen = false;
+  setCollageLayoutMode(false);
   clearActiveLocation();
   elements.openCollage.classList.remove("active");
   elements.openCollage.setAttribute("aria-pressed", "false");
@@ -2916,6 +2918,7 @@ function setSelectedCity(cityKey) {
 function resetMapView() {
   activeCityKey = "";
   collagePanelOpen = false;
+  setCollageLayoutMode(false);
   clearActiveLocation();
   cityMarkerLayer.clearLayers();
   locationMarkerLayer.clearLayers();
@@ -2929,6 +2932,11 @@ function resetMapView() {
   elements.locationGrid.replaceChildren();
   addCityMarkers();
   fitUsaView();
+}
+
+function setCollageLayoutMode(enabled) {
+  elements.map?.closest(".map-shell")?.classList.toggle("collage-mode", Boolean(enabled));
+  document.body.classList.toggle("collage-mode-open", Boolean(enabled));
 }
 
 function addCityMarkers() {
