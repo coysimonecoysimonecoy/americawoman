@@ -6,6 +6,7 @@ const persistentStorageUnavailableMessage = "Permanent saving works on the Cloud
 const maxPhotoDimension = 1600;
 const photoCompressionQuality = 0.82;
 const randomCollageMinimumSlots = 100;
+const collageBoxNameStorageKey = "iyas-return-collage-box-names";
 const feelingOptions = [
   { score: 1, emoji: "\u{1F622}", label: "Sad / heavy" },
   { score: 2, emoji: "\u{1F615}", label: "Low" },
@@ -364,6 +365,7 @@ let collageFileInput = null;
 let collageActiveTab = "random";
 let collagePanelOpen = false;
 let activeCollageSlotIndex = 0;
+let savedCollageBoxNames = loadCollageBoxNames();
 let memoryViewer = null;
 let viewerContext = null;
 let fullscreenPhotoViewer = null;
@@ -705,6 +707,49 @@ async function requestFeelingJson(url, options = {}) {
 
 function getMemoryPasscode() {
   return elements.feelingPasscode?.value.trim() || feelingHistoryPasscode || "";
+}
+
+function loadCollageBoxNames() {
+  try {
+    const names = JSON.parse(window.localStorage?.getItem(collageBoxNameStorageKey) || "{}");
+
+    return names && typeof names === "object" && !Array.isArray(names) ? names : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveCollageBoxNames() {
+  try {
+    window.localStorage?.setItem(collageBoxNameStorageKey, JSON.stringify(savedCollageBoxNames));
+  } catch {
+    // Box names are a browser convenience; photo storage still works if localStorage is blocked.
+  }
+}
+
+function getCollageBoxName(index) {
+  return String(savedCollageBoxNames[index] || "");
+}
+
+function getCollageBoxLabel(index, photo) {
+  return getCollageBoxName(index) || (photo ? `Random Memory ${String(index + 1).padStart(2, "0")}` : `Box ${String(index + 1).padStart(2, "0")}`);
+}
+
+function updateCollageBoxName(index, value, card) {
+  const name = String(value || "").slice(0, 80);
+
+  if (name) {
+    savedCollageBoxNames[index] = name;
+  } else {
+    delete savedCollageBoxNames[index];
+  }
+
+  saveCollageBoxNames();
+  const heading = card?.querySelector(".location-copy h4");
+
+  if (heading) {
+    heading.textContent = getCollageBoxLabel(index, savedCollagePhotos[index]);
+  }
 }
 
 function normalizeFeelings(feelings) {
@@ -2297,16 +2342,39 @@ function openRandomCollageFullscreen(event, photo, label) {
   openFullscreenPhoto(photo, label);
 }
 
+function openCollageSlotManager(event, index) {
+  event?.preventDefault();
+  event?.stopPropagation();
+  setActiveCollageSlot(index);
+  collageActiveTab = "random";
+  openCollageManager();
+}
+
+function removeRandomCollagePhoto(event, photo, index) {
+  event?.preventDefault();
+  event?.stopPropagation();
+
+  if (!photo) {
+    return;
+  }
+
+  setActiveCollageSlot(index);
+  removeCollagePhoto(photo.pathname, index);
+}
+
 function buildCollageLocationCard(photo, index) {
   const card = document.createElement("article");
   const frame = document.createElement("button");
   const pin = document.createElement("span");
-  const action = document.createElement("span");
+  const controls = document.createElement("div");
+  const addButton = document.createElement("button");
+  const fullButton = document.createElement("button");
+  const removeButton = document.createElement("button");
+  const nameInput = document.createElement("input");
   const body = document.createElement("div");
   const name = document.createElement("h4");
   const caption = document.createElement("p");
-  const fullButton = photo ? document.createElement("button") : null;
-  const label = photo ? `Random Memory ${String(index + 1).padStart(2, "0")}` : "Add Random Photo";
+  const label = getCollageBoxLabel(index, photo);
 
   card.className = photo ? "location-card collage-slot random-collage-slot has-photo" : "location-card collage-slot random-collage-slot";
   card.dataset.collageSlot = String(index);
@@ -2315,8 +2383,30 @@ function buildCollageLocationCard(photo, index) {
   frame.setAttribute("aria-label", photo ? `Open random collage photo ${index + 1}` : `Add random collage photo ${index + 1}`);
   pin.className = "route-pin";
   pin.textContent = String(index + 1).padStart(2, "0");
-  action.className = "photo-card-action";
-  action.textContent = photo ? "View" : "+";
+  controls.className = "collage-box-controls";
+  addButton.type = "button";
+  addButton.className = "collage-box-control";
+  addButton.textContent = photo ? "Replace Photo" : "Add Photo";
+  addButton.addEventListener("click", (event) => openCollageSlotManager(event, index));
+  fullButton.type = "button";
+  fullButton.className = "collage-box-control";
+  fullButton.textContent = "Full Screen Photo";
+  fullButton.disabled = !photo;
+  fullButton.addEventListener("click", (event) => openRandomCollageFullscreen(event, photo, label));
+  removeButton.type = "button";
+  removeButton.className = "collage-box-control danger";
+  removeButton.textContent = "Remove Photo";
+  removeButton.disabled = !photo;
+  removeButton.addEventListener("click", (event) => removeRandomCollagePhoto(event, photo, index));
+  nameInput.className = "collage-box-name-input";
+  nameInput.type = "text";
+  nameInput.value = getCollageBoxName(index);
+  nameInput.placeholder = "Name this box";
+  nameInput.setAttribute("aria-label", `Name collage box ${index + 1}`);
+  nameInput.addEventListener("click", (event) => event.stopPropagation());
+  nameInput.addEventListener("keydown", (event) => event.stopPropagation());
+  nameInput.addEventListener("input", (event) => updateCollageBoxName(index, event.currentTarget.value, card));
+  controls.append(addButton, fullButton, removeButton, nameInput);
   body.className = "location-copy";
   name.textContent = label;
   caption.textContent = "Travel collage";
@@ -2336,21 +2426,12 @@ function buildCollageLocationCard(photo, index) {
     image.loading = "lazy";
     image.decoding = "async";
     frame.append(fillImage, image);
-    fullButton.type = "button";
-    fullButton.className = "photo-card-action full-photo-action";
-    fullButton.textContent = "Full";
-    fullButton.setAttribute("aria-label", `Open ${label} full screen`);
-    fullButton.addEventListener("click", (event) => openRandomCollageFullscreen(event, photo, label));
   }
 
-  frame.append(pin, action);
+  frame.append(pin);
   body.append(name, caption);
-  card.append(frame, body);
-  if (fullButton) {
-    card.append(fullButton);
-  }
-  frame.addEventListener("click", openCollagePhotoManager);
-  card.addEventListener("click", openCollagePhotoManager);
+  card.append(frame, controls, body);
+  frame.addEventListener("click", (event) => openCollageSlotManager(event, index));
 
   return card;
 }
